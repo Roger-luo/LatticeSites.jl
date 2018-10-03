@@ -1,0 +1,6 @@
+authors = ["Roger-luo <hiroger@qq.com>"]
+name = "LatticeSites"
+uuid = "c0861db6-c73d-11e8-2767-d113495df8b6"
+version = "0.1.0"
+
+[deps]
