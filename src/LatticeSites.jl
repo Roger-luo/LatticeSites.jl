@@ -187,11 +187,12 @@ function Random.rand!(rng::AbstractRNG, b::Sites{L, T, N}) where {L, T, N}
     return b
 end
 
-Random.rand!(b::Sites{L, T, N}) where {L <: SiteLabel, T, N} = rand!(GLOBAL_RNG, b)
+Random.rand!(b::Sites{L, T, N}) where {L <: SiteLabel, T, N} = rand!(Random.GLOBAL_RNG, b)
 Random.rand(rng::AbstractRNG, ::Type{L}, shape::Dims) where {L <: SiteLabel} =
     rand!(rng, Sites(L, shape))
 
 ####################
+export flip!, randflip!
 
 @inline function flip!(b::Sites{L, T, N}, index::Integer...) where {L, T, N}
     if b[index...] == up(L)
@@ -271,11 +272,11 @@ import Base: convert
 
 function convert(::Type{Integer}, x::Sites{L, T, N}) where {L, T, N} end
 
-for IntType in (:Int8, Int16, Int32, Int64, Int128, BigInt)
+for IntType in (Int8, Int16, Int32, Int64, Int128, BigInt)
 @eval begin
         function convert(::Type{$IntType}, x::Sites{Bit, T, N}) where {T, N}
             if sizeof($IntType) * 8 < length(x)
-                throw(Compat.InexactError(:convert, $IntType, x))
+                throw(InexactError(:convert, $IntType, x))
             end
 
             sum($IntType(each) << (i-1) for (i, each) in enumerate(x))
@@ -283,7 +284,7 @@ for IntType in (:Int8, Int16, Int32, Int64, Int128, BigInt)
 
         function convert(::Type{$IntType}, x::Sites{Spin, T, N}) where {T, N}
             if sizeof($IntType) * 8 < length(x)
-                throw(Compat.InexactError(:convert, $IntType, x))
+                throw(InexactError(:convert, $IntType, x))
             end
 
             sum($IntType(div(each+1, 2)) << (i-1) for (i, each) in enumerate(x))
@@ -291,7 +292,7 @@ for IntType in (:Int8, Int16, Int32, Int64, Int128, BigInt)
 
         function convert(::Type{$IntType}, x::Sites{Half, T, N}) where {T, N}
             if sizeof($IntType) * 8 < length(x)
-                throw(Compat.InexactError(:convert, $IntType, x))
+                throw(InexactError(:convert, $IntType, x))
             end
 
             sum($IntType(each+0.5) << (i-1) for (i, each) in enumerate(x))
