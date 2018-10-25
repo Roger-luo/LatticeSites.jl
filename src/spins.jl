@@ -49,6 +49,10 @@ down(::Type{Half{T}}) where T = Half(-T(0.5))
 # Base.rand(::Type{Spin{T}}) where T = Spin{T}(2 * rand(Bool) - 1)
 # Base.rand(::Type{Half{T}}) where T = Half{T}(rand(Bool) - 0.5)
 
+Base.length(::BinarySite) = 1
+Base.iterate(x::BinarySite) = (x, nothing)
+Base.iterate(x::BinarySite, state) = nothing
+
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Bit{T}}) where T = Bit{T}(rand(rng, Bool))
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Spin{T}}) where T = Spin{T}(2 * rand(rng, Bool) - 1)
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Half{T}}) where T = Half{T}(rand(rng, Bool) - 0.5)

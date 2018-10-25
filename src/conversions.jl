@@ -4,6 +4,8 @@ end
 
 for ST1 in [:Bit, :Spin, :Half]
     @eval Base.convert(::Type{$ST1{T}}, x::$ST1) where T = $ST1{T}(T(x.value))
+    @eval Base.convert(::Type{T1}, x::$ST1{T2}) where {T1, T2} = T1(x.value)
+    @eval Base.getindex(::Type{$ST1}, args::T...) where T = $ST1{T}[args...]
 end
 
 Base.convert(::Type{ST1}, x::ST2) where {ST1 <: BinarySite, ST2 <: BinarySite} =
@@ -41,7 +43,7 @@ for IntType in (Int8, Int16, Int32, Int64, Int128, BigInt)
                 throw(InexactError(:convert, $IntType, x))
             end
 
-            sum(convert($IntType, div(each+1, 2)) << (i-1) for (i, each) in enumerate(x))
+            $IntType(sum($IntType(div(each.value+1, 2)) << (i-1) for (i, each) in enumerate(x)))
         end
 
         function Base.convert(::Type{$IntType}, x::AbstractArray{Half{T}, N}) where {T, N}
@@ -49,7 +51,7 @@ for IntType in (Int8, Int16, Int32, Int64, Int128, BigInt)
                 throw(InexactError(:convert, $IntType, x))
             end
 
-            sum(convert($IntType, each+0.5) << (i-1) for (i, each) in enumerate(x))
+            $IntType(sum($IntType(each.value+0.5) << (i-1) for (i, each) in enumerate(x)))
         end
     end
 end
