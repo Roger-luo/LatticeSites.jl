@@ -41,7 +41,7 @@ end
 
 @generated function if_stop(it::HilbertSpace{L, S, N, NSite}, state) where {L, S, N, NSite}
     if sizeof(Int) * 8 > NSite
-        :(state == $(1 << NSite))
+        :(state == $((1 << NSite) + 1))
     else
         quote
             flag = true
@@ -58,3 +58,11 @@ end
 
 Base.eltype(::HilbertSpace{L, S, N}) where {L, S, N} = Array{L, N}
 Base.length(::HilbertSpace{L, S, N, NSite}) where {L, S, N, NSite} = 1 << NSite
+
+function Base.collect(space::HilbertSpace)
+    r = Vector{eltype(space)}(undef, length(space))
+    @inbounds for (i, each) in enumerate(space)
+        r[i] = copy(each)
+    end
+    r
+end
