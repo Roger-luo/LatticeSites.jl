@@ -25,11 +25,14 @@ get_bit(::Type{T}, x::Int, i::Int) where T = T((x >> (i - 1)) & 1)
 end
 
 # Arrays
-for IntType in (Int8, Int16, Int32, Int64, Int128, BigInt)
+for IntType in (:Int8, :Int16, :Int32, :Int64, :Int128, :BigInt)
 
+@eval Base.$IntType(x::Bit) = convert(IntType, x)
 @eval Base.convert(::Type{$IntType}, x::Bit{T}) where T = convert($IntType, x.value)
 
 @eval begin
+        Base.$IntType(x::AbstractArray{Bit{T}, N}) where {T, N} = convert($IntType, x)
+
         function Base.convert(::Type{$IntType}, x::AbstractArray{Bit{T}, N}) where {T, N}
             if sizeof($IntType) * 8 < length(x)
                 throw(InexactError(:convert, $IntType, x))
