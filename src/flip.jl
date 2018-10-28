@@ -23,10 +23,8 @@ Flips given configuration `S` at index `I...`.
 """
 function flip! end
 
-function flip!(S::AbstractArray{BT, N}, Is...) where {BT <: BinarySite, N}
-    S[Is...] = flip(S[Is...])
-    S
-end
+flip!(S::AbstractArray{BT, N}, I...) where {BT <: BinarySite, N} = flip!(S, I)
+flip!(S::AbstractArray, I::Tuple) = (@inbounds S[I...] = flip(S[I...]); S)
 
 """
     randflip!(config) -> (proposed_index, config)
