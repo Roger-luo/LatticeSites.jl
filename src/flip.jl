@@ -24,7 +24,7 @@ Flips given configuration `S` at index `I...`.
 function flip! end
 
 flip!(S::AbstractArray{BT, N}, I...) where {BT <: BinarySite, N} = flip!(S, I)
-flip!(S::AbstractArray, I::Tuple) = (@inbounds S[I...] = flip(S[I...]); S)
+flip!(S::AbstractArray{BT, N}, I::Tuple) where {BT <: BinarySite, N} = (@inbounds S[I...] = flip(S[I...]); S)
 
 """
     randflip!(config) -> (proposed_index, config)
