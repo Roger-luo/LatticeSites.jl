@@ -8,5 +8,5 @@ ups(ltc::Lattices.AbstractLattice) = ups(Bit{Int}, ltc)
 downs(ltc::Lattices.AbstractLattice) = downs(Bit{Int}, ltc)
 Random.rand(ltc::Lattices.AbstractLattice) = rand(Bit{Int}, ltc)
 
-HilbertSpace{L}(ltc::Lattices.AbstractLattice) = HilbertSpace{L}(dims(ltc)...)
+HilbertSpace{L}(ltc::Lattices.AbstractLattice) where L = HilbertSpace{L}(dims(ltc)...)
 HilbertSpace(ltc::Lattices.AbstractLattice) = HilbertSpace{Bit{Int}}(ltc)
