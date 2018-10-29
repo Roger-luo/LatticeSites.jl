@@ -1,3 +1,5 @@
+export fill_bit!
+
 function Base.convert(::Type{ST}, x::T2) where {T1 <: Number, T2 <: Number, ST <: BinarySite{T1}}
     round(ST, T1(x))
 end
@@ -15,6 +17,13 @@ Base.convert(::Type{SA}, x::Int) where {S, T, N, SA <: StaticArray{S, Bit{T}, N}
     _convert(Size(SA), eltype(SA), SA, x)
 
 get_bit(::Type{T}, x::Int, i::Int) where T = T((x >> (i - 1)) & 1)
+
+function fill_bit!(A::Array{T}, n::Int) where T
+    @inbounds for i in 1:length(A)
+        A[i] = get_bit(T, n, i)
+    end
+    A
+end
 
 @generated function _convert(::Size{s}, ::Type{Bit{T}}, ::Type{SA}, x::Int) where {s, T, SA}
     v = [:(get_bit($T, x, $i)) for i = 1:prod(s)]
