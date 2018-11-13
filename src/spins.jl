@@ -57,11 +57,12 @@ Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Bit{T}}) where T = B
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Spin{T}}) where T = Spin{T}(2 * rand(rng, Bool) - 1)
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Half{T}}) where T = Half{T}(rand(rng, Bool) - 0.5)
 
-Base.to_index(A::AbstractArray, i::Bit) = value(i) + 1
-Base.to_index(A::AbstractArray, i::Spin) = Int(0.5 * (value(i) + 1) + 1)
-Base.to_index(A::AbstractArray, i::Half) = Int(value(i) + 1.5)
+const SpinIndexable = Union{AbstractArray, Tuple}
+Base.to_index(A::SpinIndexable, i::Bit) = value(i) + 1
+Base.to_index(A::SpinIndexable, i::Spin) = Int(0.5 * (value(i) + 1) + 1)
+Base.to_index(A::SpinIndexable, i::Half) = Int(value(i) + 1.5)
 
-Base.to_index(A::AbstractArray, I::AbstractArray{Bit{T}, N}) where {T, N} = reinterpret(Int, I) .+ 1
+Base.to_index(A::SpinIndexable, I::AbstractArray{Bit{T}, N}) where {T, N} = reinterpret(Int, I) .+ 1
 
 include("roundings.jl")
 include("conversions.jl")
