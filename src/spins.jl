@@ -64,8 +64,7 @@ Base.to_index(A::AbstractArray, i::Half) = Int(value(i) + 1.5)
 Base.to_index(A::AbstractArray, I::AbstractArray{Bit{T}, N}) where {T, N} = reinterpret(Int, I) .+ 1
 
 Base.getindex(t::Tuple, i::Bit) = getindex(t, value(i) + 1)
-Base.getindex(t::Tuple, i::Spin) = getindex(t, Int(0.5 * (value(i) + 1) + 1))
-Base.getindex(t::Tuple, i::Spin) = getindex(t, Int(value(i) + 1.5))
+Base.getindex(t::Tuple, i::Spin) = getindex(t, Int(div(value(i) + 1, 2) + 1))
 
 include("roundings.jl")
 include("conversions.jl")
