@@ -1,4 +1,4 @@
-export up, down, Bit, Spin, Half
+export up, down, Bit, Spin, Half, Clock, Potts, Continuous
 
 abstract type AbstractSite{T} end
 
@@ -7,23 +7,9 @@ Base.show(io::IO, s::AbstractSite) = show(io, value(s))
 Base.:(==)(lhs::AbstractSite, rhs::Number) = value(lhs) == rhs
 Base.:(==)(lhs::Number, rhs::AbstractSite) = lhs == value(rhs)
 
-abstract type BinarySite{T} <: AbstractSite{T} end
-
-"""
-    up(site) -> site
-    up(site_type) -> site
-up tag for this label. e.g. `1` for `Bit`, `0.5` for `Half`.
-"""
-function up end
-
-"""
-    down(site) -> site
-    down(site_type) -> site
-down tag for this label. e.g. `0` for `Bit`, `-0.5` for `Half`.
-"""
-function down end
-
-value(s::BinarySite) = s.value
+abstract type IntegerSite{T} <: AbstractSite{T} end
+abstract type BinarySite{T} <: IntegerSite{T} end
+abstract type ContinuousSite{T} <: AbstractSite{T} end
 
 struct Bit{T} <: BinarySite{T}
     value::T
@@ -37,31 +23,66 @@ struct Half{T} <: BinarySite{T}
     value::T
 end
 
-up(::Type{Bit{T}}) where T = Bit(one(T))
-up(::Type{Spin{T}}) where T = Spin(one(T))
-up(::Type{Half{T}}) where T = Half(T(0.5))
+struct Clock{T, q} <: IntegerSites{T}
+    value::T
+end
 
-down(::Type{Bit{T}}) where T = Bit(zero(T))
-down(::Type{Spin{T}}) where T = Spin(-one(T))
-down(::Type{Half{T}}) where T = Half(-T(0.5))
+struct Potts{T, q} <: IntegerSites{T}
+    value::T
+end
 
-# Base.rand(::Type{Bit{T}}) where T = Bit{T}(rand(Bool))
-# Base.rand(::Type{Spin{T}}) where T = Spin{T}(2 * rand(Bool) - 1)
-# Base.rand(::Type{Half{T}}) where T = Half{T}(rand(Bool) - 0.5)
+struct Continuous{T, d} <: ContinuousSites{T}
+    value::T
+end
 
-Base.length(::BinarySite) = 1
-Base.iterate(x::BinarySite) = (x, nothing)
-Base.iterate(x::BinarySite, state) = nothing
+"""
+    up(site) -> site
+    up(site_type) -> site
+    up (highest value) tag for this label. e.g. `1` for `Bit`, `0.5` for `Half`.
+"""
+up(::ST) where {ST<: IntegerSite} = values(ST)[end]
+
+"""
+    down(site) -> site
+    down(site_type) -> site
+    down (lowest value) tag for this label. e.g. `0` for `Bit`, `-0.5` for `Half`.
+"""
+down(::ST) where {ST<: IntegerSite} = values(ST)[1]
+
+"""
+    values(site) -> site
+    values(site_type) -> site
+Returns a tuple of all possible values of the site type
+"""
+Base.values(::Type{ST}) where {ST <: AbstractSite} = map(ST, _values(ST))
+Base.values(::ST) where {ST <: AbstractSite} = values(ST)
+_values(::Type{Bit{T}}) where T = (zero(T), one(T))
+_values(::Type{Spin{T}}) where T = (-one(T), one(T))
+_values(::Type{Half{T}}) where T = (-0.5, 0.5)
+_values(::Type{Clock{T, q}}) where {T, q} = Base.OneTo(q)
+_values(::Type{Potts{T, q}}) where {T, q} = Tuple(-q:q)
+# _values(::Type{Continuous{T}}) where {T} = # TODO 
+
+
+value(S:AbstractSite) = S.value
+
+Base.length(::AbstractSite) = 1
+Base.iterate(x::AbstractSite) = (x, nothing)
+Base.iterate(x::AbstractSite, state) = nothing
 
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Bit{T}}) where T = Bit{T}(rand(rng, Bool))
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Spin{T}}) where T = Spin{T}(2 * rand(rng, Bool) - 1)
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Half{T}}) where T = Half{T}(rand(rng, Bool) - 0.5)
+Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Clock{T, q}}) where {T, q} = Clock{T}(rand(rng, 1:q))
+Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Potts{T, q}}) where {T, q} = Potts{T}(rand(rng, -q:q))
 
 Base.to_index(A::AbstractArray, i::Bit) = value(i) + 1
 Base.to_index(A::AbstractArray, i::Spin) = Int(0.5 * (value(i) + 1) + 1)
 Base.to_index(A::AbstractArray, i::Half) = Int(value(i) + 1.5)
+Base.to_index(A::AbstractArray, i::Clock) = Int(value(i))
+Base.to_index(A::AbstractArray, i::Potts) = Int(value(i) + q + 1)
 
-Base.to_index(A::AbstractArray, I::AbstractArray{Bit{T}, N}) where {T, N} = reinterpret(Int, I) .+ 1
+Base.to_index(A::AbstractArray, I::AbstractArray{Bit{T}, N}) where {T, N} = reinterpret(T, I) .+ 1
 
 Base.getindex(t::Tuple, i::Bit) = getindex(t, value(i) + 1)
 Base.getindex(t::Tuple, i::Spin) = getindex(t, Int(div(value(i) + 1, 2) + 1))

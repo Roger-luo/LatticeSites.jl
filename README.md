@@ -19,6 +19,9 @@ Binary configuration label is provided as:
 - `Bit`,  refers to `0`/`1`
 - `Spin`, refers to `-1`/`+1`
 - `Half`, refers to `-0.5`/`+0.5`
+- `Clock`, refers to the 2D q-state clock model with `q` discrete spin values (`1:q`)
+- `Potts`, refers to the standard Potts model with values `-q, ..., q`
+- `Continuous`, is in development still and not ready.
 
 `Array`, `StaticArray` and etc. (e.g `SparseArray`) is supported for store configurations.
 
