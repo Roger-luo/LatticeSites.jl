@@ -23,15 +23,15 @@ struct Half{T} <: BinarySite{T}
     value::T
 end
 
-struct Clock{T, q} <: IntegerSites{T}
+struct Clock{T, q} <: IntegerSite{T}
     value::T
 end
 
-struct Potts{T, q} <: IntegerSites{T}
+struct Potts{T, q} <: IntegerSite{T}
     value::T
 end
 
-struct Continuous{T, d} <: ContinuousSites{T}
+struct Continuous{T, d} <: ContinuousSite{T}
     value::T
 end
 
@@ -61,10 +61,10 @@ _values(::Type{Spin{T}}) where T = (-one(T), one(T))
 _values(::Type{Half{T}}) where T = (-0.5, 0.5)
 _values(::Type{Clock{T, q}}) where {T, q} = Base.OneTo(q)
 _values(::Type{Potts{T, q}}) where {T, q} = Tuple(-q:q)
-# _values(::Type{Continuous{T}}) where {T} = # TODO 
+# _values(::Type{Continuous{T}}) where {T} = # TODO
 
 
-value(S:AbstractSite) = S.value
+value(S::AbstractSite) = S.value
 
 Base.length(::AbstractSite) = 1
 Base.iterate(x::AbstractSite) = (x, nothing)
@@ -73,8 +73,8 @@ Base.iterate(x::AbstractSite, state) = nothing
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Bit{T}}) where T = Bit{T}(rand(rng, Bool))
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Spin{T}}) where T = Spin{T}(2 * rand(rng, Bool) - 1)
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Half{T}}) where T = Half{T}(rand(rng, Bool) - 0.5)
-Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Clock{T, q}}) where {T, q} = Clock{T}(rand(rng, 1:q))
-Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Potts{T, q}}) where {T, q} = Potts{T}(rand(rng, -q:q))
+Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Clock{T, q}}) where {T, q} = Clock{T, q}(rand(rng, 1:q))
+Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Potts{T, q}}) where {T, q} = Potts{T, q}(rand(rng, -q:q))
 
 Base.to_index(A::AbstractArray, i::Bit) = value(i) + 1
 Base.to_index(A::AbstractArray, i::Spin) = Int(0.5 * (value(i) + 1) + 1)
