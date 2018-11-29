@@ -11,6 +11,9 @@ abstract type IntegerSite{T} <: AbstractSite{T} end
 abstract type BinarySite{T} <: IntegerSite{T} end
 abstract type ContinuousSite{T} <: AbstractSite{T} end
 
+"""
+    Bit{T} <: BinarySite{T}
+"""
 struct Bit{T} <: BinarySite{T}
     value::T
 end
@@ -38,31 +41,37 @@ end
 """
     up(site) -> site
     up(site_type) -> site
-    up (highest value) tag for this label. e.g. `1` for `Bit`, `0.5` for `Half`.
+
+Up (highest value) tag for this label. e.g. `1` for `Bit`, `0.5` for `Half`.
 """
-up(::ST) where {ST<: IntegerSite} = values(ST)[end]
+up(::ST) where {ST<: IntegerSite} = up(ST)
+up(::Type{ST}) where {ST <: IntegerSite} = values(ST)[end]
 
 """
     down(site) -> site
     down(site_type) -> site
-    down (lowest value) tag for this label. e.g. `0` for `Bit`, `-0.5` for `Half`.
+
+Down (lowest value) tag for this label. e.g. `0` for `Bit`, `-0.5` for `Half`.
 """
-down(::ST) where {ST<: IntegerSite} = values(ST)[1]
+down(::ST) where {ST<: IntegerSite} = down(ST)
+down(::Type{ST}) where {ST <: IntegerSite} = values(ST)[1]
 
 """
     values(site) -> site
     values(site_type) -> site
+
 Returns a tuple of all possible values of the site type
 """
-Base.values(::Type{ST}) where {ST <: AbstractSite} = map(ST, _values(ST))
 Base.values(::ST) where {ST <: AbstractSite} = values(ST)
+Base.values(::Type{ST}) where {ST <: AbstractSite} = map(ST, _values(ST))
+Base.values(::ST, i::Int) where {ST <: AbstractSite} = _values(ST)[i]
+
 _values(::Type{Bit{T}}) where T = (zero(T), one(T))
 _values(::Type{Spin{T}}) where T = (-one(T), one(T))
 _values(::Type{Half{T}}) where T = (-0.5, 0.5)
 _values(::Type{Clock{T, q}}) where {T, q} = Base.OneTo(q)
 _values(::Type{Potts{T, q}}) where {T, q} = Tuple(-q:q)
 # _values(::Type{Continuous{T}}) where {T} = # TODO
-
 
 value(S::AbstractSite) = S.value
 
