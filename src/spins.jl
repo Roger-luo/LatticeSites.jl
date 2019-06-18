@@ -85,7 +85,7 @@ Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Half{T}}) where T = 
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Clock{T, q}}) where {T, q} = Clock{T, q}(rand(rng, 1:q))
 Random.rand(rng::Random.AbstractRNG, sp::Random.SamplerType{Potts{T, q}}) where {T, q} = Potts{T, q}(rand(rng, -q:q))
 
-Base.to_index(A::AbstractArray, i::Bit) = value(i) + 1
+Base.to_index(A::AbstractArray, i::Bit) = Int(value(i) + 1)
 Base.to_index(A::AbstractArray, i::Spin) = Int(0.5 * (value(i) + 1) + 1)
 Base.to_index(A::AbstractArray, i::Half) = Int(value(i) + 1.5)
 Base.to_index(A::AbstractArray, i::Clock) = Int(value(i))
