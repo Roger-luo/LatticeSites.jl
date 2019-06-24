@@ -91,7 +91,7 @@ Base.to_index(A::AbstractArray, i::Half) = Int(value(i) + 1.5)
 Base.to_index(A::AbstractArray, i::Clock) = Int(value(i))
 Base.to_index(A::AbstractArray, i::Potts) = Int(value(i) + q + 1)
 
-Base.to_index(A::AbstractArray, I::AbstractArray{Bit{T}, N}) where {T, N} = reinterpret(T, I) .+ 1
+Base.to_index(A::AbstractArray, I::AbstractArray{Bit{T}, N}) where {T, N} = Int(I)
 
 Base.getindex(t::Tuple, i::Bit) = getindex(t, value(i) + 1)
 Base.getindex(t::Tuple, i::Spin) = getindex(t, Int(div(value(i) + 1, 2) + 1))
